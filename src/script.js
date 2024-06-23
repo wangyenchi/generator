@@ -77,7 +77,6 @@ renderer.setSize(sizes.width, sizes.height)
 renderer.render(scene, camera)
 
 // control interface
-
 initInterface();
 function initInterface() {
     const gui = new dat.GUI();
