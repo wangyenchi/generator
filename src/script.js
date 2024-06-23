@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as dat from 'dat.gui';
+import { gsap } from 'gsap';
 import mainFrag from './main.frag';
 import mainVert from './main.vert';
 
@@ -13,9 +14,10 @@ const controls = {
     speed: 6000,
     width: 1440,
     height: 1024,
-    color: "#CCFD68",
+    color: "#FFFFFF",
     isPlaying: true,
-    isDay: false
+    isDay: false,
+    dayNightTransition: { value: 1.0 }
 }
 
 // Canvas
@@ -32,7 +34,8 @@ const material = new THREE.ShaderMaterial({
         zoom: { value: 1 },
         seed: { value: Math.random() },
         isDay: { value: controls.isDay },
-        targetColor: { value: Array.from(hexToVec3(parseInt(controls.color.slice(1), 16))) }
+        targetColor: { value: Array.from(hexToVec3(parseInt(controls.color.slice(1), 16))) },
+        dayNightTransition: { value: 0.0 }
     },
 
     vertexShader: mainVert,
@@ -80,8 +83,8 @@ renderer.render(scene, camera)
 initInterface();
 function initInterface() {
     const gui = new dat.GUI();
-    gui.add(material.uniforms.isDay, 'value').name('Day / Night');
-    gui.addColor(controls, 'color').name('Day Color').onChange(updateColor);
+    gui.add(controls, 'isDay').name('Day / Night').onChange(updateDayNight);
+    gui.addColor(controls, 'color').name('Color').onChange(updateColor);
     gui.add(controls, 'isPlaying').name('Play/Pause').onChange(updateAnimation);
     gui.add(controls, 'width').name('Width').onChange(updateSize);
     gui.add(controls, 'height').name('Height').onChange(updateSize);
@@ -100,6 +103,16 @@ function updateAnimation(){
 function updateColor(hex) {
     controls.color = hex;
     material.uniforms.targetColor.value = hexToVec3(parseInt(hex.slice(1), 16));
+    
+}
+
+function updateDayNight() {
+    // Create a GSAP animation
+    gsap.to(material.uniforms.dayNightTransition, {
+        value: controls.isDay ? 1.0 : 0.0, // target value
+        duration: 1, // duration in seconds
+        ease: "power1.inOut" // easing function for a smooth transition
+    });
 }
 
 
